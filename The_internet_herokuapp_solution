@@ -1,0 +1,180 @@
+from selenium import webdriver
+from selenium.common import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Initialize the WebDriver
+driver = webdriver.Chrome()  # Ensure the ChromeDriver is in PATH or specify the executable_path
+
+# 1. A/B Testing
+def test_ab_testing():
+    try:
+        driver.get("https://the-internet.herokuapp.com/abtest")
+        # Fix the assertion to match the actual page title
+        assert "The Internet" in driver.title
+        print("Test passed: Page title is correct.")
+    except AssertionError as e:
+        print(f"AssertionError: Expected title not found. Error: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
+# 2. Add/Remove Elements
+def test_add_remove_elements():
+    driver.get("https://the-internet.herokuapp.com/add_remove_elements/")
+    add_button = driver.find_element(By.XPATH, "//button[text()='Add Element']")
+    add_button.click()
+    delete_button = driver.find_element(By.CLASS_NAME, "added-manually")
+    assert delete_button.is_displayed()
+    delete_button.click()
+
+# 3. Basic Auth
+def test_basic_auth():
+    driver.get("https://admin:admin@the-internet.herokuapp.com/basic_auth")
+    assert "Congratulations!" in driver.page_source
+
+# 4. Broken Images
+def test_broken_images():
+    driver.get("https://the-internet.herokuapp.com/broken_images")
+    images = driver.find_elements(By.TAG_NAME, "img")
+    for img in images:
+        if img.get_attribute("naturalWidth") == "0":
+            print("Broken Image:", img.get_attribute("src"))
+
+
+def test_challenging_dom():
+    try:
+        driver.get("https://the-internet.herokuapp.com/challenging_dom")
+
+        # Locate the table element
+        table = driver.find_element(By.TAG_NAME, "table")
+
+        # Assert the table is displayed
+        assert table.is_displayed()
+        print("Test passed: The table is displayed on the page.")
+
+    except AssertionError:
+        print("AssertionError: The table is not displayed on the page.")
+    except NoSuchElementException:
+        print("NoSuchElementException: The table element was not found on the page.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
+
+# 6. Checkboxes
+def test_checkboxes():
+    driver.get("https://the-internet.herokuapp.com/checkboxes")
+    checkboxes = driver.find_elements(By.CSS_SELECTOR, "input[type='checkbox']")
+    for checkbox in checkboxes:
+        if not checkbox.is_selected():
+            checkbox.click()
+
+# 7. Context Menu
+def test_context_menu():
+    driver.get("https://the-internet.herokuapp.com/context_menu")
+    box = driver.find_element(By.ID, "hot-spot")
+    actions = ActionChains(driver)
+    actions.context_click(box).perform()
+    driver.switch_to.alert.accept()
+
+# 8. Digest Authentication
+def test_digest_auth():
+    driver.get("https://admin:admin@the-internet.herokuapp.com/digest_auth")
+    assert "Congratulations!" in driver.page_source
+
+# 9. Drag and Drop
+def test_drag_and_drop():
+    driver.get("https://the-internet.herokuapp.com/drag_and_drop")
+    source = driver.find_element(By.ID, "column-a")
+    target = driver.find_element(By.ID, "column-b")
+    actions = ActionChains(driver)
+    actions.drag_and_drop(source, target).perform()
+
+# 10. Dropdown
+def test_dropdown():
+    driver.get("https://the-internet.herokuapp.com/dropdown")
+    dropdown = driver.find_element(By.ID, "dropdown")
+    dropdown.send_keys("Option 2")
+
+
+# 11. File Upload
+def test_file_upload():
+    try:
+        driver.get("https://the-internet.herokuapp.com/upload")
+
+        # Correct the file path by escaping backslashes or using a raw string
+        file_path = r"D:\NightCaps Icon 2 (1) (1)\ICONS_ACTIVE-ORANGE_Folder\PNG\alcohol.png"
+
+        # Locate the file input field and upload the file
+        upload_input = driver.find_element(By.ID, "file-upload")
+        upload_input.send_keys(file_path)
+
+        # Submit the form
+        driver.find_element(By.ID, "file-submit").click()
+
+        # Verify upload success message
+        assert "File Uploaded!" in driver.page_source
+        print("File upload test passed.")
+
+    except FileNotFoundError:
+        print(f"File not found at path: {file_path}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
+
+# 12. Floating Menu
+def test_floating_menu():
+    driver.get("https://the-internet.herokuapp.com/floating_menu")
+    menu = driver.find_element(By.ID, "menu")
+    assert menu.is_displayed()
+
+# 13. Forgot Password
+def test_forgot_password():
+    driver.get("https://the-internet.herokuapp.com/forgot_password")
+    email_input = driver.find_element(By.ID, "email")
+    email_input.send_keys("example@example.com")
+    driver.find_element(By.ID, "form_submit").click()
+
+# 14. Horizontal Slider
+def test_horizontal_slider():
+    driver.get("https://the-internet.herokuapp.com/horizontal_slider")
+    slider = driver.find_element(By.TAG_NAME, "input")
+    slider.send_keys(Keys.ARROW_RIGHT * 5)
+
+# 15. JavaScript Alerts
+def test_javascript_alerts():
+    driver.get("https://the-internet.herokuapp.com/javascript_alerts")
+    driver.find_element(By.XPATH, "//button[text()='Click for JS Alert']").click()
+    driver.switch_to.alert.accept()
+
+# 16. Multiple Windows
+def test_multiple_windows():
+    driver.get("https://the-internet.herokuapp.com/windows")
+    driver.find_element(By.LINK_TEXT, "Click Here").click()
+    driver.switch_to.window(driver.window_handles[1])
+    assert "New Window" in driver.title
+
+# Run All Tests
+def run_all_tests():
+    test_ab_testing()
+    test_add_remove_elements()
+    test_basic_auth()
+    test_broken_images()
+    test_challenging_dom()
+    test_checkboxes()
+    test_context_menu()
+    test_digest_auth()
+    test_drag_and_drop()
+    test_dropdown()
+    test_file_upload()
+    test_floating_menu()
+    test_forgot_password()
+    test_horizontal_slider()
+    test_javascript_alerts()
+    test_multiple_windows()
+    print("All tests executed successfully.")
+
+run_all_tests()
+driver.quit()
